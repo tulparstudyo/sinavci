@@ -8,7 +8,7 @@ Liseler için yerel sınav planlama, kelebek salon dağıtımı ve raporlama uyg
 
 ## Tanıtım videosu
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/VEfn_l858i8?si=BCDPb9SQNuJoTuMF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Sınavcı tanıtım videosunu YouTube'da izleyin](https://img.youtube.com/vi/VEfn_l858i8/hqdefault.jpg)](https://www.youtube.com/watch?v=VEfn_l858i8)
 
 ## Başlarken
 
