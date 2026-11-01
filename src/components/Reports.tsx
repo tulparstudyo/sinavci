@@ -238,7 +238,7 @@ export default function Reports({ exams, assignments, students, rooms, instituti
 
       {createPortal(<div className="print-report-container" aria-hidden="true">
         {classReports.map((report) => (
-          <article className={`print-report-page ${isSelected(report.key) ? 'print-selected' : ''} ${isLastSelected(report.key) ? 'print-last' : ''}`} key={report.key}>
+          <article className={`print-report-page class-report-page ${isSelected(report.key) ? 'print-selected' : ''} ${isLastSelected(report.key) ? 'print-last' : ''}`} key={report.key}>
             <header className="print-report-header">
               <div><h1>{report.className} Sınıfı Sınav Giriş Listesi</h1><p>{institutionName && <>{institutionName} · </>}{report.exam.subject} · {report.exam.examDate ?? 'Tarih belirtilmedi'} · {report.exam.session}</p></div>
               <span>{report.rows.length} öğrenci</span>
