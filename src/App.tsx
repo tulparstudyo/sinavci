@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -15,7 +15,7 @@ const steps = [
   { number: '03', step: 3, label: 'Raporları yazdır', icon: Printer },
 ]
 
-const subjects = [
+const defaultSubjects = [
   'Türk Dili ve Edebiyatı',
   'Matematik',
   'Fizik',
@@ -31,6 +31,16 @@ const subjects = [
   'Diğer',
 ]
 
+function parseSubjectList(value: string): string[] {
+  return [...new Set(value.split(/\r?\n/).map((subject) => subject.trim()).filter(Boolean))]
+}
+
+function getSavedSubjects(): string[] {
+  const savedSubjects = localStorage.getItem('sinavci.subjects')
+  const parsedSubjects = savedSubjects === null ? [] : parseSubjectList(savedSubjects)
+  return parsedSubjects.length > 0 ? parsedSubjects : defaultSubjects
+}
+
 interface ExamDraft {
   id: string
   subject: string
@@ -39,10 +49,10 @@ interface ExamDraft {
   separateByGender: boolean
 }
 
-function createExamDraft(): ExamDraft {
+function createExamDraft(subjects: string[]): ExamDraft {
   return {
     id: crypto.randomUUID(),
-    subject: subjects[0],
+    subject: subjects[0] ?? '',
     customSubject: '',
     classNames: [],
     separateByGender: false,
@@ -75,6 +85,10 @@ export default function App() {
     return Number.isInteger(savedId) && savedId > 0 ? savedId : null
   })
   const [institutionName, setInstitutionName] = useState(() => localStorage.getItem('sinavci.institutionName') ?? '')
+  const [subjects, setSubjects] = useState<string[]>(getSavedSubjects)
+  const [subjectListText, setSubjectListText] = useState(() => subjects.join('\n'))
+  const [focusSubjectList, setFocusSubjectList] = useState(false)
+  const [isSubjectHelpOpen, setIsSubjectHelpOpen] = useState(false)
   const activeSession = sessions.find((session) => session.id === activeSessionId)
   const exams = allExams.filter((exam) => exam.sessionId === activeSessionId)
   const examIds = new Set(exams.flatMap((exam) => exam.id === undefined ? [] : [exam.id]))
@@ -85,7 +99,7 @@ export default function App() {
     student.id === undefined ? [] : [[student.id, student] as const],
   ))
   const [activeStep, setActiveStep] = useState(0)
-  const [examDrafts, setExamDrafts] = useState<ExamDraft[]>(() => [createExamDraft()])
+  const [examDrafts, setExamDrafts] = useState<ExamDraft[]>(() => [createExamDraft(subjects)])
   const [showSessionForm, setShowSessionForm] = useState(false)
   const [sessionTitle, setSessionTitle] = useState('Sabah Oturumu')
   const [sessionDate, setSessionDate] = useState(getToday)
@@ -97,6 +111,8 @@ export default function App() {
   const [isExportingBackup, setIsExportingBackup] = useState(false)
   const [isImportingBackup, setIsImportingBackup] = useState(false)
   const backupInputRef = useRef<HTMLInputElement>(null)
+  const subjectListRef = useRef<HTMLTextAreaElement>(null)
+  const subjectHelpCloseRef = useRef<HTMLButtonElement>(null)
   const [roomError, setRoomError] = useState('')
   const [examError, setExamError] = useState('')
   const [examDeleteError, setExamDeleteError] = useState('')
@@ -118,6 +134,23 @@ export default function App() {
   }, [activeSessionId])
 
   useEffect(() => {
+    if (activeStep !== 4 || !focusSubjectList) return
+    subjectListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    subjectListRef.current?.focus({ preventScroll: true })
+    setFocusSubjectList(false)
+  }, [activeStep, focusSubjectList])
+
+  useEffect(() => {
+    if (!isSubjectHelpOpen) return
+    subjectHelpCloseRef.current?.focus()
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsSubjectHelpOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isSubjectHelpOpen])
+
+  useEffect(() => {
     const trimmedName = institutionName.trim()
     if (trimmedName) localStorage.setItem('sinavci.institutionName', trimmedName)
     else localStorage.removeItem('sinavci.institutionName')
@@ -126,9 +159,10 @@ export default function App() {
   useEffect(() => {
     setExamDrafts((drafts) => drafts.map((draft) => ({
       ...draft,
+      subject: subjects.includes(draft.subject) ? draft.subject : subjects[0] ?? '',
       classNames: draft.classNames.filter((className) => classNames.includes(className)),
     })))
-  }, [classNames.join('|')])
+  }, [classNames.join('|'), subjects])
 
   useEffect(() => {
     const savedIds = exams.flatMap((exam) => exam.id === undefined ? [] : [exam.id])
@@ -136,6 +170,37 @@ export default function App() {
     setDistributionError('')
     setDistributionNotice('')
   }, [activeSessionId, allExams])
+
+  function saveSubjectList(value: string) {
+    const nextSubjects = parseSubjectList(value)
+    if (nextSubjects.length === 0) {
+      setSettingsError('Ders listesinde en az bir ders adı bulunmalıdır.')
+      setSettingsNotice('')
+      return
+    }
+
+    try {
+      const normalizedList = nextSubjects.join('\n')
+      localStorage.setItem('sinavci.subjects', normalizedList)
+      setSubjects(nextSubjects)
+      setSubjectListText(normalizedList)
+      setSettingsError('')
+      setSettingsNotice('Ders listesi kaydedildi.')
+    } catch (cause) {
+      setSettingsError(cause instanceof Error ? `Ders listesi kaydedilemedi: ${cause.message}` : 'Ders listesi kaydedilemedi.')
+      setSettingsNotice('')
+    }
+  }
+
+  function openSubjectSettings() {
+    setIsSubjectHelpOpen(true)
+  }
+
+  function goToSubjectSettings() {
+    setIsSubjectHelpOpen(false)
+    setFocusSubjectList(true)
+    setActiveStep(4)
+  }
 
   async function createSession(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -156,7 +221,7 @@ export default function App() {
       if (typeof sessionId !== 'number') throw new Error('Veritabanı oturum kimliği döndürmedi.')
       setActiveSessionId(sessionId)
       setActiveStep(students.length > 0 ? 1 : 0)
-      setExamDrafts([createExamDraft()])
+      setExamDrafts([createExamDraft(subjects)])
       setShowSessionForm(false)
       setSessionTitle('Yeni Oturum')
     } catch (cause) {
@@ -208,7 +273,7 @@ export default function App() {
       setActiveSessionId(null)
       setActiveStep(1)
       setSelectedExamIds([])
-      setExamDrafts([createExamDraft()])
+      setExamDrafts([createExamDraft(subjects)])
       setDistributionError('')
       setDistributionNotice('')
     } catch (cause) {
@@ -288,7 +353,7 @@ export default function App() {
       setActiveSessionId(null)
       setActiveStep(backup.examSessions.length > 0 ? 1 : 0)
       setSelectedExamIds([])
-      setExamDrafts([createExamDraft()])
+      setExamDrafts([createExamDraft(subjects)])
       setDistributionError('')
       setDistributionNotice('')
       setSettingsNotice('Yedek başarıyla yüklendi. Sınav planlamaya devam etmek için oturumu seçin.')
@@ -316,7 +381,7 @@ export default function App() {
       setInstitutionName('')
       setActiveStep(4)
       setSelectedExamIds([])
-      setExamDrafts([createExamDraft()])
+      setExamDrafts([createExamDraft(subjects)])
       setDistributionError('')
       setDistributionNotice('')
       setExamError('')
@@ -330,7 +395,7 @@ export default function App() {
   function selectSession(sessionId: number) {
     setActiveSessionId(sessionId)
     setActiveStep(students.length > 0 ? 1 : 0)
-    setExamDrafts([createExamDraft()])
+    setExamDrafts([createExamDraft(subjects)])
     setExamDeleteError('')
   }
 
@@ -368,7 +433,7 @@ export default function App() {
   }
 
   function addExamDraft() {
-    setExamDrafts((drafts) => [...drafts, createExamDraft()])
+    setExamDrafts((drafts) => [...drafts, createExamDraft(subjects)])
   }
 
   async function handleExamSubmit(event: FormEvent<HTMLFormElement>) {
@@ -411,7 +476,7 @@ export default function App() {
         createdAt,
       }))
       await db.exams.bulkAdd(newExams)
-      setExamDrafts([createExamDraft()])
+      setExamDrafts([createExamDraft(subjects)])
     } catch (cause) {
       setExamError(cause instanceof Error ? `Sınavlar kaydedilemedi: ${cause.message}` : 'Sınavlar kaydedilemedi.')
     } finally {
@@ -702,6 +767,34 @@ export default function App() {
                 </button>
               </div>
               {settingsError && <div className="error-message">{settingsError}</div>}
+              <section className="subject-settings">
+                <div>
+                  <h3>Ders listesi</h3>
+                  <p>Yeni ders eklemek için adını ayrı bir satıra yazıp kaydedin. Sınav planlamadaki ders seçenekleri bu listeden alınır.</p>
+                </div>
+                <label className="subject-list-field">
+                  <span>Dersler</span>
+                  <textarea
+                    ref={subjectListRef}
+                    value={subjectListText}
+                    onChange={(event) => {
+                      setSubjectListText(event.target.value)
+                      setSettingsError('')
+                      setSettingsNotice('')
+                    }}
+                    rows={10}
+                    aria-label="Ders listesi"
+                  />
+                </label>
+                <div className="subject-list-actions">
+                  <button className="primary-button" type="button" onClick={() => saveSubjectList(subjectListText)}>
+                    Ders listesini kaydet
+                  </button>
+                  <button className="secondary-button" type="button" onClick={() => saveSubjectList(defaultSubjects.join('\n'))}>
+                    Varsayılan ders listesini yükle ve kaydet
+                  </button>
+                </div>
+              </section>
             </section>
           ) : activeStep === 0 ? (
             <>
@@ -792,12 +885,17 @@ export default function App() {
                         <div className="exam-form-grid">
                           <label className="exam-field">
                             <span>Ders adı</span>
-                            <select
-                              value={draft.subject}
-                              onChange={(event) => updateExamDraft(draft.id, { subject: event.target.value })}
-                            >
-                              {subjects.map((item) => <option key={item}>{item}</option>)}
-                            </select>
+                            <div className="exam-subject-control">
+                              <select
+                                value={draft.subject}
+                                onChange={(event) => updateExamDraft(draft.id, { subject: event.target.value })}
+                              >
+                                {subjects.map((item) => <option key={item}>{item}</option>)}
+                              </select>
+                              <button className="subject-help-link" type="button" onClick={openSubjectSettings}>
+                                Listede olmayan dersi nasıl eklerim
+                              </button>
+                            </div>
                           </label>
                           {draft.subject === 'Diğer' && (
                             <label className="exam-field">
@@ -1061,6 +1159,26 @@ export default function App() {
           <footer className="page-footer"><span>© 2026 Sınavcı</span><span>Liseler için yerel sınav planlama sistemi</span></footer>
         </div>
       </main>
+      {isSubjectHelpOpen && (
+        <div className="subject-help-backdrop" onClick={() => setIsSubjectHelpOpen(false)}>
+          <section
+            className="subject-help-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="subject-help-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="subject-help-modal-heading">
+              <h2 id="subject-help-title">Listede olmayan dersi nasıl eklerim?</h2>
+              <button ref={subjectHelpCloseRef} className="subject-help-close" type="button" aria-label="Pencereyi kapat" onClick={() => setIsSubjectHelpOpen(false)}>
+                <X size={17} />
+              </button>
+            </div>
+            <p>Yeni ders adını Ayarlar’daki ders listesine ayrı satır olarak ekleyip kaydedin.</p>
+            <button className="primary-button" type="button" onClick={goToSubjectSettings}>Ders listesi ayarlarına git</button>
+          </section>
+        </div>
+      )}
     </div>
   )
 }
