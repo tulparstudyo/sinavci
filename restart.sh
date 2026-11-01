@@ -14,7 +14,15 @@ if ! command -v ps >/dev/null 2>&1; then
   exit 1
 fi
 
-mapfile -t RUNNING_PIDS < <(
+if ! command -v curl >/dev/null 2>&1; then
+  echo "Hata: sunucunun hazır olduğunu kontrol etmek için curl komutu gerekli." >&2
+  exit 1
+fi
+
+RUNNING_PIDS=()
+while IFS= read -r pid; do
+  [[ -n "$pid" ]] && RUNNING_PIDS+=("$pid")
+done < <(
   ps -eo pid=,args= |
     awk -v project="$PROJECT_DIR" -v script_pid="$$" \
       'index($0, project) && index($0, "vite") && $1 != script_pid && $0 !~ /awk/ { print $1 }' |
