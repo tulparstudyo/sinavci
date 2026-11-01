@@ -2,6 +2,10 @@
 
 Liseler için yerel sınav planlama, kelebek salon dağıtımı ve raporlama uygulaması. Öğrenci, derslik, sınav ve yerleşim verileri tarayıcının yerel veritabanında saklanır; uygulama bir sunucuya öğrenci verisi göndermez.
 
+## Demo
+
+[Sınavcı demosunu açın](https://sinavci.teknovip.net/)
+
 ## Başlarken
 
 ```bash

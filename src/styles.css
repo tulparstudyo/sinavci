@@ -337,6 +337,9 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
 .report-empty { margin: 0; padding: 10px 12px; }
 .print-report-container { display: none; }
 .page-footer { color: #a0a7b4; display: flex; font-size: 9px; justify-content: space-between; margin-top: 30px; }
+.whatsapp-button { align-items: center; background: #25d366; border: 0; border-radius: 999px; bottom: 22px; box-shadow: 0 5px 16px rgb(23 32 51 / 22%); color: #fff; display: inline-flex; font-size: 12px; font-weight: 650; gap: 8px; padding: 12px 17px; position: fixed; right: 22px; text-decoration: none; z-index: 5; }
+.whatsapp-button:hover { background: #1fbd5b; }
+.whatsapp-button:focus-visible { outline: 3px solid #172033; outline-offset: 3px; }
 .mobile-session-switcher { display: none; }
 @media (max-width: 1050px) {
   .sidebar { width: 205px; }
@@ -353,6 +356,7 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .main-content { margin-left: 0; }
   .page-content { padding: 26px 18px; }
   .topbar { padding: 0 18px; }
+  .whatsapp-button { bottom: 16px; right: 16px; }
   .page-intro { align-items: flex-start; gap: 12px; }
   .term-badge { min-width: auto; padding: 8px; }
   .stepper { align-items: flex-start; flex-direction: column; gap: 0; padding: 10px 14px; }

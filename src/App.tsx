@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, MessageCircle, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -1179,6 +1179,16 @@ export default function App() {
           </section>
         </div>
       )}
+      <a
+        className="whatsapp-button"
+        href="https://wa.me/905065989387"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp üzerinden sohbet başlat"
+      >
+        <MessageCircle size={19} aria-hidden="true" />
+        <span>WhatsApp</span>
+      </a>
     </div>
   )
 }
