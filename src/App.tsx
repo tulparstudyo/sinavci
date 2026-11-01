@@ -89,6 +89,10 @@ export default function App() {
   const [subjectListText, setSubjectListText] = useState(() => subjects.join('\n'))
   const [focusSubjectList, setFocusSubjectList] = useState(false)
   const [isSubjectHelpOpen, setIsSubjectHelpOpen] = useState(false)
+  const [isIntroVideoOpen, setIsIntroVideoOpen] = useState(
+    () => localStorage.getItem('sinavci.hideIntroVideo') !== 'true',
+  )
+  const [hideIntroVideo, setHideIntroVideo] = useState(false)
   const activeSession = sessions.find((session) => session.id === activeSessionId)
   const exams = allExams.filter((exam) => exam.sessionId === activeSessionId)
   const examIds = new Set(exams.flatMap((exam) => exam.id === undefined ? [] : [exam.id]))
@@ -113,6 +117,7 @@ export default function App() {
   const backupInputRef = useRef<HTMLInputElement>(null)
   const subjectListRef = useRef<HTMLTextAreaElement>(null)
   const subjectHelpCloseRef = useRef<HTMLButtonElement>(null)
+  const introVideoCloseRef = useRef<HTMLButtonElement>(null)
   const [roomError, setRoomError] = useState('')
   const [examError, setExamError] = useState('')
   const [examDeleteError, setExamDeleteError] = useState('')
@@ -149,6 +154,16 @@ export default function App() {
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [isSubjectHelpOpen])
+
+  useEffect(() => {
+    if (!isIntroVideoOpen) return
+    introVideoCloseRef.current?.focus()
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') closeIntroVideo()
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isIntroVideoOpen, hideIntroVideo])
 
   useEffect(() => {
     const trimmedName = institutionName.trim()
@@ -200,6 +215,12 @@ export default function App() {
     setIsSubjectHelpOpen(false)
     setFocusSubjectList(true)
     setActiveStep(4)
+  }
+
+  function closeIntroVideo() {
+    if (hideIntroVideo) localStorage.setItem('sinavci.hideIntroVideo', 'true')
+    else localStorage.removeItem('sinavci.hideIntroVideo')
+    setIsIntroVideoOpen(false)
   }
 
   async function createSession(event: FormEvent<HTMLFormElement>) {
@@ -1176,6 +1197,36 @@ export default function App() {
             </div>
             <p>Yeni ders adını Ayarlar’daki ders listesine ayrı satır olarak ekleyip kaydedin.</p>
             <button className="primary-button" type="button" onClick={goToSubjectSettings}>Ders listesi ayarlarına git</button>
+          </section>
+        </div>
+      )}
+      {isIntroVideoOpen && (
+        <div className="intro-video-backdrop" onClick={closeIntroVideo}>
+          <section
+            className="intro-video-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="intro-video-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="intro-video-heading">
+              <h2 id="intro-video-title">Tanıtım videosu</h2>
+              <button ref={introVideoCloseRef} className="subject-help-close" type="button" aria-label="Pencereyi kapat" onClick={closeIntroVideo}>
+                <X size={17} />
+              </button>
+            </div>
+            <iframe
+              className="intro-video-frame"
+              src="https://www.youtube.com/embed/VEfn_l858i8?si=BCDPb9SQNuJoTuMF"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+            <label className="intro-video-hide-option">
+              <input type="checkbox" checked={hideIntroVideo} onChange={(event) => setHideIntroVideo(event.target.checked)} />
+              <span>Tekrar gösterme</span>
+            </label>
           </section>
         </div>
       )}

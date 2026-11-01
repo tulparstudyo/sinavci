@@ -276,6 +276,13 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
 .subject-help-modal .primary-button { align-items: center; display: inline-flex; }
 .subject-help-close { align-items: center; background: transparent; border: 0; border-radius: 5px; color: #7b8495; display: inline-flex; flex: 0 0 auto; justify-content: center; padding: 4px; }
 .subject-help-close:hover { background: #f1f3f8; color: #3e4a60; }
+.intro-video-backdrop { align-items: center; background: rgb(23 32 51 / 65%); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 20; }
+.intro-video-modal { background: #fff; border: 1px solid #e8ebf1; border-radius: 12px; box-shadow: 0 18px 50px rgb(23 32 51 / 30%); max-width: 720px; padding: 18px; width: 100%; }
+.intro-video-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: 12px; }
+.intro-video-heading h2 { color: #18233c; font-size: 15px; margin: 0; }
+.intro-video-frame { aspect-ratio: 16 / 9; border: 0; border-radius: 7px; display: block; width: 100%; }
+.intro-video-hide-option { align-items: center; color: #68748a; cursor: pointer; display: inline-flex; font-size: 11px; gap: 8px; margin-top: 14px; }
+.intro-video-hide-option input { accent-color: #536fdf; height: 15px; margin: 0; width: 15px; }
 .room-config-heading, .distribution-exams-heading { align-items: center; display: flex; justify-content: space-between; margin: 0 0 12px; }
 .room-config-heading h3, .distribution-exams-heading h3, .assignment-summary h3 { color: #344057; font-size: 11px; margin: 0; }
 .room-config-heading p, .distribution-exams-heading p { color: #929aaa; font-size: 9px; margin: 4px 0 0; }
@@ -392,6 +399,10 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .mobile-session-create-form { background: #fff; border: 1px solid #e8ebf1; border-radius: 7px; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px; width: 100%; }
   .mobile-session-create-form label { display: flex; flex-direction: column; gap: 4px; }
   .mobile-session-create-form .session-form-error, .mobile-session-create-form .session-create-submit { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .intro-video-backdrop { padding: 12px; }
+  .intro-video-modal { padding: 13px; }
 }
 
 @page { size: A4 portrait; margin: 12mm; }
