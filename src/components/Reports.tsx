@@ -259,10 +259,17 @@ export default function Reports({ exams, assignments, students, rooms, instituti
             `${row.assignment.column}:${row.assignment.row}:${row.assignment.side}`,
             row,
           ]))
-          const examSummary = new Map<string, number>()
-          report.rows.forEach(({ exam }) => {
-            examSummary.set(exam.subject, (examSummary.get(exam.subject) ?? 0) + 1)
+          const examSummary = new Map<string, { grade: number; subject: string; count: number }>()
+          report.rows.forEach(({ exam, student }) => {
+            const grade = studentGrade(student)
+            const key = `${grade}:${exam.subject}`
+            const summary = examSummary.get(key) ?? { grade, subject: exam.subject, count: 0 }
+            summary.count += 1
+            examSummary.set(key, summary)
           })
+          const sortedExamSummary = [...examSummary.values()].sort((a, b) =>
+            a.grade - b.grade || a.subject.localeCompare(b.subject, 'tr'),
+          )
           return (
             <Fragment key={report.key}>
               <article className={`print-report-page room-print-page ${isSelected(report.key) ? 'print-selected' : ''} ${isLastSelected(report.key) ? 'print-last' : ''}`}>
@@ -272,8 +279,8 @@ export default function Reports({ exams, assignments, students, rooms, instituti
                 </header>
                 <div className="room-print-meta">
                   <div><strong>Sınav özeti</strong>
-                    {[...examSummary.entries()].sort(([a], [b]) => a.localeCompare(b, 'tr')).map(([subject, count]) => (
-                      <span key={subject}>{subject}: {count} öğrenci</span>
+                    {sortedExamSummary.map(({ grade, subject, count }) => (
+                      <span key={`${grade}-${subject}`}>{grade > 0 ? `${grade}-` : ''}{subject}: {count}</span>
                     ))}
                   </div>
                   <div className="proctor-signature"><strong>Gözetmen Öğretmen</strong><span>Ad Soyad / İmza</span></div>
