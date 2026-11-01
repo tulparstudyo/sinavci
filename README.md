@@ -15,6 +15,14 @@ npm run dev
 npm run build
 ```
 
+Çalışan geliştirme sunucusunu durdurup projeyi yeniden derlemek ve başlatmak için:
+
+```bash
+bash restart.sh
+```
+
+Betik uygulamayı `http://127.0.0.1:5173/` adresinde başlatır; çıktıları proje dizinindeki `dev.log` dosyasına yazar.
+
 Uygulamayı kullanırken sınav planlama, dağıtım ve raporlar için önce bir oturum seçin. Öğrenci ve derslik listeleri oturumlardan bağımsız, cihazdaki ortak verilerdir.
 
 ## 1. Öğrenci listesini içe aktarma
