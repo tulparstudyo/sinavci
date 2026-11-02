@@ -446,15 +446,15 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .class-report-page .print-table tr { break-inside: avoid; page-break-inside: avoid; }
   .print-page-footer { border-top: 1px solid #9ca3af; bottom: 0; color: #4b5563; font-size: 8pt; left: 0; padding-top: 3mm; position: absolute; right: 0; }
   .room-print-meta { align-items: stretch; display: flex; gap: 8mm; margin-bottom: 8mm; }
-  .room-print-meta > div { border: 1px solid #9ca3af; display: flex; flex: 1; flex-direction: column; font-size: 8pt; gap: 2mm; padding: 3mm; }
+  .room-print-meta > div { border: 1px solid #9ca3af; display: flex; flex: 1; flex-direction: column; font-size: 8pt; gap: 1.8mm; padding: 2.7mm; }
   .room-print-meta strong { font-size: 9pt; }
-  .proctor-signature { justify-content: space-between; min-height: 25mm; }
+  .proctor-signature { justify-content: space-between; min-height: 22.5mm; }
   .proctor-signature span { border-bottom: 1px solid #6b7280; padding-bottom: 2mm; }
   .room-seating-grid { display: grid; gap: 3mm; }
   .room-seat-column { border: 1px solid #9ca3af; min-width: 0; padding: 2mm; }
   .room-seat-column h2 { background: #eef1f5 !important; color: #172033; font-size: 8pt; margin: 0 0 2mm; padding: 2mm; print-color-adjust: exact; text-align: center; }
   .room-seat-pair { display: grid; gap: 1.5mm; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 1.5mm; }
-  .room-seat { border: 1px solid #c5cad1; display: flex; flex-direction: column; gap: 1mm; min-height: 19.8mm; overflow: hidden; padding: 1.5mm; }
+  .room-seat { border: 1px solid #c5cad1; display: flex; flex-direction: column; gap: 1mm; min-height: 17.82mm; overflow: hidden; padding: 1.5mm; }
   .room-seat small { color: #4b5563; font-size: 6.5pt; }
   .room-seat strong { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #172033; display: -webkit-box; font-size: 7pt; overflow: hidden; overflow-wrap: anywhere; }
   .room-seat span, .room-seat em { color: #374151; font-size: 6pt; font-style: normal; overflow-wrap: anywhere; }
