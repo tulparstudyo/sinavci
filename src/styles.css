@@ -447,6 +447,7 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .print-page-footer { border-top: 1px solid #9ca3af; bottom: 0; color: #4b5563; font-size: 8pt; left: 0; padding-top: 3mm; position: absolute; right: 0; }
   .room-print-meta { align-items: stretch; display: flex; gap: 8mm; margin-bottom: 8mm; }
   .room-print-meta > div { border: 1px solid #9ca3af; display: flex; flex: 1; flex-direction: column; font-size: 8pt; gap: 1.8mm; padding: 2.7mm; }
+  .room-print-meta > div:first-child { align-self: flex-start; min-height: 13.5mm; }
   .room-print-meta strong { font-size: 9pt; }
   .proctor-signature { justify-content: space-between; min-height: 22.5mm; }
   .proctor-signature span { border-bottom: 1px solid #6b7280; padding-bottom: 2mm; }
