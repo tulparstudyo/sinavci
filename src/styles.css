@@ -423,9 +423,9 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .room-print-page { break-inside: avoid; min-height: 0 !important; page-break-inside: avoid; }
   .print-report-page.room-print-page.print-selected { break-after: page !important; page-break-after: always !important; }
   .room-signature-page { break-inside: avoid; page-break-inside: avoid; }
-  .print-report-header { align-items: flex-start; border-bottom: 2px solid #26334c; display: flex; justify-content: space-between; margin-bottom: 8mm; padding-bottom: 4mm; }
-  .print-report-header h1 { color: #172033; font-size: 16pt; margin: 0 0 2mm; }
-  .print-report-header p { color: #4b5563; font-size: 9pt; margin: 0; }
+  .print-report-header { align-items: flex-start; border-bottom: 2px solid #26334c; display: flex; justify-content: space-between; margin-bottom: 4mm; padding-bottom: 2mm; }
+  .print-report-header h1 { color: #172033; font-size: 14pt; margin: 0 0 1mm; }
+  .print-report-header p { color: #4b5563; font-size: 8pt; margin: 0; }
   .print-report-header > span { border: 1px solid #9ca3af; border-radius: 3px; font-size: 9pt; padding: 2mm 3mm; white-space: nowrap; }
   .print-table { border-collapse: collapse; font-size: 9pt; width: 100%; }
   .print-table th, .print-table td { border: 1px solid #9ca3af; padding: 2.2mm; text-align: left; }
@@ -445,20 +445,20 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .class-report-page .print-table td:nth-child(2) { overflow-wrap: anywhere; }
   .class-report-page .print-table tr { break-inside: avoid; page-break-inside: avoid; }
   .print-page-footer { border-top: 1px solid #9ca3af; bottom: 0; color: #4b5563; font-size: 8pt; left: 0; padding-top: 3mm; position: absolute; right: 0; }
-  .room-print-meta { align-items: stretch; display: flex; gap: 8mm; margin-bottom: 8mm; }
-  .room-print-meta > div { border: 1px solid #9ca3af; display: flex; flex: 1; flex-direction: column; font-size: 8pt; gap: 1.8mm; padding: 2.7mm; }
-  .room-print-meta > div:first-child { align-self: flex-start; min-height: 13.5mm; }
-  .room-print-meta strong { font-size: 9pt; }
-  .proctor-signature { justify-content: space-between; min-height: 22.5mm; }
-  .proctor-signature span { border-bottom: 1px solid #6b7280; padding-bottom: 2mm; }
-  .room-seating-grid { display: grid; gap: 3mm; }
-  .room-seat-column { border: 1px solid #9ca3af; min-width: 0; padding: 2mm; }
-  .room-seat-column h2 { background: #eef1f5 !important; color: #172033; font-size: 8pt; margin: 0 0 2mm; padding: 2mm; print-color-adjust: exact; text-align: center; }
-  .room-seat-pair { display: grid; gap: 1.5mm; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 1.5mm; }
-  .room-seat { border: 1px solid #c5cad1; display: flex; flex-direction: column; gap: 1mm; min-height: 17.82mm; overflow: hidden; padding: 1.5mm; }
-  .room-seat small { color: #4b5563; font-size: 6.5pt; }
-  .room-seat strong { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #172033; display: -webkit-box; font-size: 7pt; overflow: hidden; overflow-wrap: anywhere; }
-  .room-seat strong:not(.empty-seat) { -webkit-line-clamp: 1; font-size: 6pt; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
-  .room-seat span, .room-seat em { color: #374151; font-size: 6pt; font-style: normal; overflow-wrap: anywhere; }
+  .room-print-meta { align-items: stretch; display: flex; gap: 4mm; margin-bottom: 4mm; }
+  .room-print-meta > div { border: 1px solid #9ca3af; display: flex; flex: 1; flex-direction: column; font-size: 7pt; gap: 1mm; padding: 1.6mm; }
+  .room-print-meta > div:first-child { align-self: flex-start; min-height: 8.1mm; }
+  .room-print-meta strong { font-size: 8pt; }
+  .proctor-signature { justify-content: space-between; min-height: 15mm; }
+  .proctor-signature span { border-bottom: 1px solid #6b7280; padding-bottom: 1mm; }
+  .room-seating-grid { display: grid; gap: 1.5mm; }
+  .room-seat-column { border: 1px solid #9ca3af; min-width: 0; padding: 1mm; }
+  .room-seat-column h2 { background: #eef1f5 !important; color: #172033; font-size: 7pt; margin: 0 0 1mm; padding: 1mm; print-color-adjust: exact; text-align: center; }
+  .room-seat-pair { display: grid; gap: .8mm; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: .8mm; }
+  .room-seat { border: 1px solid #c5cad1; display: flex; flex-direction: column; gap: .5mm; min-height: 12mm; overflow: hidden; padding: .8mm; }
+  .room-seat small { color: #4b5563; font-size: 5.5pt; }
+  .room-seat strong { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #172033; display: -webkit-box; font-size: 6pt; overflow: hidden; overflow-wrap: anywhere; }
+  .room-seat strong:not(.empty-seat) { -webkit-line-clamp: 1; font-size: 5.5pt; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+  .room-seat span, .room-seat em { color: #374151; font-size: 5.5pt; font-style: normal; overflow-wrap: anywhere; }
   .room-seat .empty-seat { color: #9ca3af; font-size: 8pt; margin: auto; }
 }
