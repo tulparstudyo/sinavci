@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, MessageCircle, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Menu, MessageCircle, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -103,6 +103,7 @@ export default function App() {
     student.id === undefined ? [] : [[student.id, student] as const],
   ))
   const [activeStep, setActiveStep] = useState(0)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [examDrafts, setExamDrafts] = useState<ExamDraft[]>(() => [createExamDraft(subjects)])
   const [showSessionForm, setShowSessionForm] = useState(false)
   const [sessionTitle, setSessionTitle] = useState('Sabah Oturumu')
@@ -118,6 +119,7 @@ export default function App() {
   const subjectListRef = useRef<HTMLTextAreaElement>(null)
   const subjectHelpCloseRef = useRef<HTMLButtonElement>(null)
   const introVideoCloseRef = useRef<HTMLButtonElement>(null)
+
   const [roomError, setRoomError] = useState('')
   const [examError, setExamError] = useState('')
   const [examDeleteError, setExamDeleteError] = useState('')
@@ -126,6 +128,15 @@ export default function App() {
   const [distributionError, setDistributionError] = useState('')
   const [isDistributing, setIsDistributing] = useState(false)
   const [distributionNotice, setDistributionNotice] = useState('')
+
+  useEffect(() => {
+    if (!isSidebarOpen) return
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsSidebarOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isSidebarOpen])
 
   useEffect(() => {
     if (activeSessionId !== null && sessions.length > 0 && !sessions.some((session) => session.id === activeSessionId)) {
@@ -589,7 +600,8 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      {isSidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Menüyü kapat" onClick={() => setIsSidebarOpen(false)} />}
+      <aside className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`} id="main-navigation">
         <a className="brand" href="#" aria-label="Sınavcı ana sayfa">
           <span className="brand-mark"><GraduationCap size={22} strokeWidth={2.2} /></span>
           <span className="brand-name">sinav<span>ci</span><small>OKUL SINAV YÖNETİMİ</small></span>
@@ -607,7 +619,10 @@ export default function App() {
                 <button
                   className="session-sidebar-item"
                   type="button"
-                  onClick={() => session.id !== undefined && selectSession(session.id)}
+                  onClick={() => {
+                    if (session.id !== undefined) selectSession(session.id)
+                    setIsSidebarOpen(false)
+                  }}
                 >
                   <strong>{session.title}</strong>
                   <small>{session.examDate || 'Tarih belirtilmedi'} · {sessionTimeLabel(session)}</small>
@@ -646,10 +661,10 @@ export default function App() {
           )}
           {sessionError && <span className="session-form-error">{sessionError}</span>}
         </div>
-        <button className={`nav-item ${activeStep === 0 ? 'nav-item-active' : ''}`} type="button" onClick={() => setActiveStep(0)}>
+        <button className={`nav-item ${activeStep === 0 ? 'nav-item-active' : ''}`} type="button" onClick={() => { setActiveStep(0); setIsSidebarOpen(false) }}>
           <School size={17} /> Öğrenci listeleri
         </button>
-        <button className={`nav-item ${activeStep === 4 ? 'nav-item-active' : ''}`} type="button" onClick={() => setActiveStep(4)}>
+        <button className={`nav-item ${activeStep === 4 ? 'nav-item-active' : ''}`} type="button" onClick={() => { setActiveStep(4); setIsSidebarOpen(false) }}>
           <Settings2 size={17} /> Ayarlar
         </button>
         <div className="sidebar-bottom">
@@ -660,6 +675,16 @@ export default function App() {
 
       <main className="main-content">
         <header className="topbar">
+          <button
+            className="mobile-menu-button"
+            type="button"
+            aria-label={isSidebarOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+            aria-expanded={isSidebarOpen}
+            aria-controls="main-navigation"
+            onClick={() => setIsSidebarOpen((open) => !open)}
+          >
+            <Menu size={19} />
+          </button>
           <span>Çalışma alanı <b>/</b> {activeSession ? sessionDisplayName(activeSession) : 'Oturum seçilmedi'}</span>
           <span className="local-indicator"><i /> Çevrimdışı kullanıma hazır</span>
         </header>
