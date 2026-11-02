@@ -45,10 +45,43 @@
       }
     </script>
     <title>Sınavcı | Lise Sınav Planlama ve Salon Dağıtımı</title>
+    <style>
+      .app-loading {
+        align-items: center;
+        background: #f5f7fb;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+        text-align: center;
+      }
+
+      .app-loading h1 {
+        color: #29334b;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: clamp(20px, 3vw, 28px);
+        font-weight: 650;
+        line-height: 1.4;
+        margin: 0;
+        max-width: 640px;
+      }
+
+      .app-loading p {
+        color: #788296;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 14px;
+        margin: 12px 0 0;
+      }
+    </style>
   </head>
   <body>
     <div id="root">
-      <h1>Liseler için Sınav Planlama ve Kelebek Salon Dağıtımı</h1>
+      <main class="app-loading" aria-busy="true">
+        <h1>Liseler için Sınav Planlama ve Kelebek Salon Dağıtımı</h1>
+        <p>Sınavcı yükleniyor...</p>
+      </main>
     </div>
     <noscript>
       <p>
