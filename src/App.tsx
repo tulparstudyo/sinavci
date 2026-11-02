@@ -280,8 +280,14 @@ export default function App() {
         endTime: sessionEndTime,
       }
       if (editingSessionId !== null) {
-        const updatedCount = await db.examSessions.update(editingSessionId, sessionDetails)
-        if (updatedCount === 0) throw new Error('Düzenlenecek oturum bulunamadı.')
+        await db.transaction('rw', db.examSessions, db.exams, async () => {
+          const updatedCount = await db.examSessions.update(editingSessionId, sessionDetails)
+          if (updatedCount === 0) throw new Error('Düzenlenecek oturum bulunamadı.')
+          await db.exams.where('sessionId').equals(editingSessionId).modify({
+            examDate: sessionDetails.examDate,
+            session: `${sessionDetails.startTime} - ${sessionDetails.endTime}`,
+          })
+        })
         closeSessionForm()
       } else {
         const session: ExamSession = { ...sessionDetails, createdAt: new Date().toISOString() }
