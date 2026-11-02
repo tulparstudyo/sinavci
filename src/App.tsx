@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Menu, MessageCircle, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Menu, MessageCircle, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -106,6 +106,7 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [examDrafts, setExamDrafts] = useState<ExamDraft[]>(() => [createExamDraft(subjects)])
   const [showSessionForm, setShowSessionForm] = useState(false)
+  const [editingSessionId, setEditingSessionId] = useState<number | null>(null)
   const [sessionTitle, setSessionTitle] = useState('Sabah Oturumu')
   const [sessionDate, setSessionDate] = useState(getToday)
   const [sessionStartTime, setSessionStartTime] = useState('09:00')
@@ -234,7 +235,37 @@ export default function App() {
     setIsIntroVideoOpen(false)
   }
 
-  async function createSession(event: FormEvent<HTMLFormElement>) {
+  function startNewSession() {
+    setEditingSessionId(null)
+    setSessionTitle('Yeni Oturum')
+    setSessionDate(getToday())
+    setSessionStartTime('09:00')
+    setSessionEndTime('10:00')
+    setSessionError('')
+    setShowSessionForm(true)
+  }
+
+  function editSession(session: ExamSession) {
+    if (session.id === undefined) {
+      setSessionError('Oturum düzenlenemedi: Oturum kimliği bulunamadı.')
+      return
+    }
+    setEditingSessionId(session.id)
+    setSessionTitle(session.title)
+    setSessionDate(session.examDate)
+    setSessionStartTime(session.startTime)
+    setSessionEndTime(session.endTime)
+    setSessionError('')
+    setShowSessionForm(true)
+  }
+
+  function closeSessionForm() {
+    setShowSessionForm(false)
+    setEditingSessionId(null)
+    setSessionError('')
+  }
+
+  async function saveSession(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSessionError('')
     if (sessionEndTime <= sessionStartTime) {
@@ -242,22 +273,27 @@ export default function App() {
       return
     }
     try {
-      const session: ExamSession = {
+      const sessionDetails = {
         title: sessionTitle.trim(),
         examDate: sessionDate,
         startTime: sessionStartTime,
         endTime: sessionEndTime,
-        createdAt: new Date().toISOString(),
       }
-      const sessionId = await db.examSessions.add(session)
-      if (typeof sessionId !== 'number') throw new Error('Veritabanı oturum kimliği döndürmedi.')
-      setActiveSessionId(sessionId)
-      setActiveStep(students.length > 0 ? 1 : 0)
-      setExamDrafts([createExamDraft(subjects)])
-      setShowSessionForm(false)
-      setSessionTitle('Yeni Oturum')
+      if (editingSessionId !== null) {
+        const updatedCount = await db.examSessions.update(editingSessionId, sessionDetails)
+        if (updatedCount === 0) throw new Error('Düzenlenecek oturum bulunamadı.')
+        closeSessionForm()
+      } else {
+        const session: ExamSession = { ...sessionDetails, createdAt: new Date().toISOString() }
+        const sessionId = await db.examSessions.add(session)
+        if (typeof sessionId !== 'number') throw new Error('Veritabanı oturum kimliği döndürmedi.')
+        setActiveSessionId(sessionId)
+        setActiveStep(students.length > 0 ? 1 : 0)
+        setExamDrafts([createExamDraft(subjects)])
+        closeSessionForm()
+      }
     } catch (cause) {
-      setSessionError(cause instanceof Error ? `Oturum oluşturulamadı: ${cause.message}` : 'Oturum oluşturulamadı.')
+      setSessionError(cause instanceof Error ? `Oturum kaydedilemedi: ${cause.message}` : 'Oturum kaydedilemedi.')
     }
   }
 
@@ -609,7 +645,7 @@ export default function App() {
         <div className="session-sidebar">
           <div className="session-sidebar-heading">
             <span>OTURUMLAR</span>
-            <button type="button" aria-label="Yeni oturum oluştur" title="Yeni oturum oluştur" onClick={() => setShowSessionForm((visible) => !visible)}>
+            <button type="button" aria-label="Yeni oturum oluştur" title="Yeni oturum oluştur" onClick={startNewSession}>
               <Plus size={15} />
             </button>
           </div>
@@ -636,13 +672,22 @@ export default function App() {
                 >
                   <Trash2 size={13} />
                 </button>
+                <button
+                  className="session-edit-button"
+                  type="button"
+                  aria-label={`${session.title} oturumunu düzenle`}
+                  title="Oturumu düzenle"
+                  onClick={() => editSession(session)}
+                >
+                  <Pencil size={13} />
+                </button>
               </div>
             ))}
             {sessions.length === 0 && <span className="session-sidebar-empty">Henüz oturum yok.</span>}
           </div>
           {sessionError && <span className="session-form-error">{sessionError}</span>}
           {showSessionForm && (
-            <form className="session-create-form" onSubmit={(event) => void createSession(event)}>
+            <form className="session-create-form" onSubmit={(event) => void saveSession(event)}>
               <label>
                 <span>Oturum adı</span>
                 <input value={sessionTitle} onChange={(event) => setSessionTitle(event.target.value)} required />
@@ -656,7 +701,11 @@ export default function App() {
                 <label><span>Bitiş</span><input type="time" value={sessionEndTime} onChange={(event) => setSessionEndTime(event.target.value)} required /></label>
               </div>
               {sessionError && <span className="session-form-error">{sessionError}</span>}
-              <button className="session-create-submit" type="submit"><Plus size={13} /> Oturum oluştur</button>
+              <button className="session-create-submit" type="submit">
+                {editingSessionId !== null ? <Check size={13} /> : <Plus size={13} />}
+                {editingSessionId !== null ? 'Değişiklikleri kaydet' : 'Oturum oluştur'}
+              </button>
+              <button className="session-form-cancel" type="button" onClick={closeSessionForm}><X size={13} /> Vazgeç</button>
             </form>
           )}
           {sessionError && <span className="session-form-error">{sessionError}</span>}
@@ -712,16 +761,23 @@ export default function App() {
                 {sessions.map((session) => <option key={session.id} value={session.id}>{sessionDisplayName(session)}</option>)}
               </select>
             </label>
-            <button type="button" onClick={() => setShowSessionForm(true)}><Plus size={14} /> Yeni oturum</button>
-            {activeSession && <button className="mobile-session-delete" type="button" onClick={() => void deleteSession(activeSession)}><Trash2 size={14} /> Oturumu sil</button>}
+            <button type="button" onClick={startNewSession}><Plus size={14} /> Yeni oturum</button>
+            {activeSession && <>
+              <button type="button" onClick={() => editSession(activeSession)}><Pencil size={14} /> Oturumu düzenle</button>
+              <button className="mobile-session-delete" type="button" onClick={() => void deleteSession(activeSession)}><Trash2 size={14} /> Oturumu sil</button>
+            </>}
             {showSessionForm && (
-              <form className="mobile-session-create-form" onSubmit={(event) => void createSession(event)}>
+              <form className="mobile-session-create-form" onSubmit={(event) => void saveSession(event)}>
                 <label><span>Oturum adı</span><input value={sessionTitle} onChange={(event) => setSessionTitle(event.target.value)} required /></label>
                 <label><span>Gün</span><input type="date" value={sessionDate} onChange={(event) => setSessionDate(event.target.value)} required /></label>
                 <label><span>Başlangıç</span><input type="time" value={sessionStartTime} onChange={(event) => setSessionStartTime(event.target.value)} required /></label>
                 <label><span>Bitiş</span><input type="time" value={sessionEndTime} onChange={(event) => setSessionEndTime(event.target.value)} required /></label>
                 {sessionError && <span className="session-form-error">{sessionError}</span>}
-                <button className="session-create-submit" type="submit"><Plus size={13} /> Oturum oluştur</button>
+                <button className="session-create-submit" type="submit">
+                  {editingSessionId !== null ? <Check size={13} /> : <Plus size={13} />}
+                  {editingSessionId !== null ? 'Değişiklikleri kaydet' : 'Oturum oluştur'}
+                </button>
+                <button className="session-form-cancel" type="button" onClick={closeSessionForm}><X size={13} /> Vazgeç</button>
               </form>
             )}
           </div>}
