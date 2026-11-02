@@ -239,6 +239,38 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
 .gender-room-notice { align-items: flex-start; background: #f3f6ff; border: 1px solid #e1e7ff; border-radius: 7px; color: #687694; display: flex; font-size: 9px; gap: 9px; line-height: 1.6; margin-bottom: 18px; padding: 11px; }
 .gender-room-notice svg { color: #5b73d6; flex: 0 0 auto; margin-top: 1px; }
 .gender-room-notice strong { color: #43588f; }
+.class-management-card { background: #fff; border: 1px solid #e8ebf1; border-radius: 10px; margin-top: 16px; padding: 18px; }
+.class-management-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: 12px; }
+.class-management-heading h3 { color: #344057; font-size: 11px; margin: 0; }
+.class-management-heading p { color: #929aaa; font-size: 9px; margin: 4px 0 0; }
+.class-management-heading > span { background: #f1f3f8; border-radius: 10px; color: #737e92; flex: 0 0 auto; font-size: 9px; padding: 4px 8px; }
+.class-create-form { align-items: end; background: #f8f9fc; border: 1px solid #edf0f4; border-radius: 7px; display: flex; gap: 9px; margin-bottom: 12px; padding: 10px; }
+.class-create-form label, .student-create-form label { display: flex; flex: 1; flex-direction: column; gap: 5px; min-width: 0; }
+.class-create-form label > span, .student-create-form label > span { color: #747e91; font-size: 8px; }
+.class-create-form input, .student-create-form input, .student-create-form select { background: #fff; border: 1px solid #e0e4ed; border-radius: 5px; color: #4b566c; font-size: 10px; min-width: 0; outline: none; padding: 8px; width: 100%; }
+.class-create-form input:focus, .student-create-form input:focus, .student-create-form select:focus { border-color: #8293e6; box-shadow: 0 0 0 2px #eef1ff; }
+.class-create-form .primary-button, .student-create-form .secondary-button { align-items: center; flex: 0 0 auto; display: inline-flex; gap: 6px; justify-content: center; white-space: nowrap; }
+.class-list { border: 1px solid #edf0f4; border-radius: 7px; overflow: hidden; }
+.class-list-item + .class-list-item { border-top: 1px solid #edf0f4; }
+.class-list-heading { align-items: center; display: flex; min-height: 44px; padding: 5px 8px; }
+.class-expand-button { align-items: center; background: transparent; border: 0; color: #536078; display: flex; flex: 1; gap: 8px; min-width: 0; padding: 7px 4px; text-align: left; }
+.class-expand-button strong { font-size: 10px; }
+.class-expand-button > span { color: #929aaa; font-size: 9px; }
+.class-expand-icon { color: #929aaa; flex: 0 0 auto; transition: transform .15s ease; }
+.class-expand-icon-open { transform: rotate(180deg); }
+.class-delete-button, .student-delete-button { align-items: center; background: transparent; border: 0; border-radius: 5px; color: #a45b5b; display: inline-flex; flex: 0 0 auto; font-size: 9px; gap: 5px; justify-content: center; padding: 7px; }
+.class-delete-button:hover, .student-delete-button:hover { background: #fff0f0; color: #bd4d4d; }
+.class-student-panel { background: #fafbfe; border-top: 1px solid #edf0f4; padding: 10px; }
+.student-create-form { align-items: end; display: flex; flex-wrap: wrap; gap: 8px; }
+.student-create-form .student-name-field { flex: 1.5; }
+.student-create-form .secondary-button { min-height: 33px; }
+.class-student-list { border: 1px solid #edf0f4; border-radius: 6px; margin-top: 10px; overflow: hidden; }
+.class-student-row { align-items: center; background: #fff; display: grid; gap: 10px; grid-template-columns: minmax(70px, .7fr) minmax(150px, 2fr) auto auto; min-height: 39px; padding: 4px 8px; }
+.class-student-row + .class-student-row { border-top: 1px solid #f0f2f5; }
+.class-student-number { color: #737e92; font-size: 9px; font-variant-numeric: tabular-nums; }
+.class-student-row > strong { color: #3b465b; font-size: 10px; font-weight: 550; }
+.class-student-row .student-delete-button { padding: 5px; }
+.empty-class-students { color: #929aaa; font-size: 9px; padding: 13px 3px 3px; }
 .room-management-card { background: #fff; border: 1px solid #e8ebf1; border-radius: 10px; margin-top: 16px; padding: 18px; }
 .settings-panel { background: #fff; border: 1px solid #e8ebf1; border-radius: 10px; padding: 20px; }
 .settings-panel .content-heading { margin-bottom: 20px; }
@@ -381,6 +413,12 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .step-label { font-size: 10px; }
   .mapping-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .exam-form-grid { grid-template-columns: 1fr; }
+  .class-create-form { align-items: stretch; flex-direction: column; }
+  .class-create-form .primary-button { align-self: flex-start; }
+  .student-create-form { align-items: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .student-create-form .student-name-field { flex: 1; }
+  .student-create-form .secondary-button { justify-self: start; }
+  .class-student-row { gap: 6px; grid-template-columns: minmax(55px, .7fr) minmax(100px, 2fr) auto auto; padding-left: 6px; padding-right: 6px; }
   .room-config-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .room-config-name, .room-gender-field { grid-column: 1 / -1; }
   .settings-backup, .settings-danger-zone { align-items: stretch; flex-direction: column; }

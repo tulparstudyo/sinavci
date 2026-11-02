@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, Download, GraduationCap, Menu, MessageCircle, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Download, GraduationCap, Menu, MessageCircle, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, UserPlus, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -97,8 +97,11 @@ export default function App() {
   const exams = allExams.filter((exam) => exam.sessionId === activeSessionId)
   const examIds = new Set(exams.flatMap((exam) => exam.id === undefined ? [] : [exam.id]))
   const assignments = allAssignments.filter((assignment) => examIds.has(assignment.examId))
-  const classCount = new Set(students?.map((student) => student.className) ?? []).size
-  const classNames = [...new Set(students.map((student) => student.className))].sort(compareClassNames)
+  const classNames = [...new Set([
+    ...students.map((student) => student.className),
+    ...rooms.map((room) => room.name),
+  ])].sort(compareClassNames)
+  const classCount = classNames.length
   const studentById = new Map<number, Student>(students.flatMap((student) =>
     student.id === undefined ? [] : [[student.id, student] as const],
   ))
@@ -122,6 +125,12 @@ export default function App() {
   const introVideoCloseRef = useRef<HTMLButtonElement>(null)
 
   const [roomError, setRoomError] = useState('')
+  const [classManagementError, setClassManagementError] = useState('')
+  const [newClassName, setNewClassName] = useState('')
+  const [expandedClassName, setExpandedClassName] = useState<string | null>(null)
+  const [studentSchoolNumber, setStudentSchoolNumber] = useState('')
+  const [studentFullName, setStudentFullName] = useState('')
+  const [studentGender, setStudentGender] = useState<Student['gender']>('B')
   const [examError, setExamError] = useState('')
   const [examDeleteError, setExamDeleteError] = useState('')
   const [isSavingExam, setIsSavingExam] = useState(false)
@@ -567,6 +576,172 @@ export default function App() {
     }
   }
 
+  async function addClass(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const name = newClassName.trim()
+    if (!name) {
+      setClassManagementError('Sınıf adı boş bırakılamaz.')
+      return
+    }
+    if (classNames.some((className) =>
+      className.toLocaleLowerCase('tr-TR') === name.toLocaleLowerCase('tr-TR'),
+    )) {
+      setClassManagementError(`“${name}” sınıfı zaten kayıtlı.`)
+      return
+    }
+
+    setClassManagementError('')
+    try {
+      await db.rooms.add({
+        name,
+        capacity: 30,
+        columns: 3,
+        rowsPerColumn: 5,
+        gender: 'A',
+      })
+      setNewClassName('')
+      setExpandedClassName(name)
+    } catch (cause) {
+      setClassManagementError(cause instanceof Error ? `Sınıf eklenemedi: ${cause.message}` : 'Sınıf eklenemedi.')
+    }
+  }
+
+  async function addStudent(event: FormEvent<HTMLFormElement>, className: string) {
+    event.preventDefault()
+    const schoolNumber = studentSchoolNumber.trim()
+    const fullName = studentFullName.trim()
+    if (!schoolNumber || !fullName) {
+      setClassManagementError('Öğrencinin okul numarası ve adı soyadı boş bırakılamaz.')
+      return
+    }
+
+    setClassManagementError('')
+    try {
+      await db.transaction('rw', db.students, db.rooms, async () => {
+        await db.students.add({
+          className,
+          schoolNumber,
+          fullName,
+          gender: studentGender,
+          createdAt: new Date().toISOString(),
+        })
+        const studentCount = await db.students.where('className').equals(className).count()
+        const room = await db.rooms.where('name').equals(className).first()
+        if (room?.id !== undefined) {
+          await db.rooms.update(room.id, {
+            capacity: Math.max(room.capacity, studentCount),
+            rowsPerColumn: Math.max(room.rowsPerColumn, Math.ceil(studentCount / (room.columns * 2))),
+          })
+        } else {
+          await db.rooms.add({
+            name: className,
+            capacity: Math.max(30, studentCount),
+            columns: 3,
+            rowsPerColumn: Math.max(5, Math.ceil(studentCount / 6)),
+            gender: 'A',
+          })
+        }
+      })
+      setStudentSchoolNumber('')
+      setStudentFullName('')
+      setStudentGender('B')
+    } catch (cause) {
+      setClassManagementError(cause instanceof Error ? `Öğrenci eklenemedi: ${cause.message}` : 'Öğrenci eklenemedi.')
+    }
+  }
+
+  async function deleteStudent(student: Student) {
+    const studentId = student.id
+    if (studentId === undefined) {
+      setClassManagementError('Öğrenci silinemedi: öğrenci kimliği bulunamadı.')
+      return
+    }
+    if (!window.confirm(`“${student.fullName}” adlı öğrenci ${student.className} sınıfından silinsin mi? Öğrencinin sınav yerleşimleri de silinir.`)) return
+
+    setClassManagementError('')
+    try {
+      await db.transaction('rw', db.students, db.assignments, async () => {
+        await db.assignments.where('studentId').equals(studentId).delete()
+        await db.students.delete(studentId)
+      })
+    } catch (cause) {
+      setClassManagementError(cause instanceof Error ? `Öğrenci silinemedi: ${cause.message}` : 'Öğrenci silinemedi.')
+    }
+  }
+
+  async function deleteClass(className: string) {
+    const classStudents = students.filter((student) => student.className === className)
+    const classExams = allExams.filter((exam) => exam.classNames.includes(className))
+    const classStudentIds = new Set(classStudents.flatMap((student) => student.id === undefined ? [] : [student.id]))
+    const roomId = rooms.find((room) => room.name === className)?.id
+    const otherStudentsInRoom = new Set(allAssignments
+      .filter((assignment) => assignment.roomId === roomId && !classStudentIds.has(assignment.studentId))
+      .map((assignment) => assignment.studentId))
+    const examsRemovedWithClass = new Set(classExams
+      .filter((exam) => exam.classNames.length === 1)
+      .flatMap((exam) => exam.id === undefined ? [] : [exam.id]))
+    const details = [
+      `${classStudents.length} öğrenci`,
+      `${classExams.length} sınav kaydı`,
+      'bu sınıfın kullandığı derslikteki tüm yerleşimler',
+      ...(otherStudentsInRoom.size > 0 ? [`${otherStudentsInRoom.size} diğer öğrencinin yerleşimi`] : []),
+    ].join(', ')
+    if (!window.confirm(`“${className}” sınıfı ve ${details} silinecek. Bu sınıfın son sınıfı olduğu sınav kayıtları da kaldırılır. Bu işlem geri alınamaz. Devam edilsin mi?`)) return
+
+    setClassManagementError('')
+    try {
+      await db.transaction('rw', db.students, db.rooms, db.exams, db.assignments, async () => {
+        const storedStudents = await db.students.where('className').equals(className).toArray()
+        const studentIds = storedStudents.flatMap((student) => student.id === undefined ? [] : [student.id])
+        const room = await db.rooms.where('name').equals(className).first()
+        const affectedExams = await db.exams.where('classNames').equals(className).toArray()
+        const updatedExams = affectedExams.map((exam) => ({
+          ...exam,
+          classNames: exam.classNames.filter((name) => name !== className),
+        }))
+        const examsToDelete = updatedExams.filter((exam) => exam.classNames.length === 0)
+        const assignmentsToDelete = new Map<number, number>()
+
+        if (studentIds.length > 0) {
+          const studentAssignments = await db.assignments.where('studentId').anyOf(studentIds).toArray()
+          studentAssignments.forEach((assignment) => {
+            if (assignment.id !== undefined) assignmentsToDelete.set(assignment.id, assignment.id)
+          })
+        }
+        if (room?.id !== undefined) {
+          const roomAssignments = await db.assignments.where('roomId').equals(room.id).toArray()
+          roomAssignments.forEach((assignment) => {
+            if (assignment.id !== undefined) assignmentsToDelete.set(assignment.id, assignment.id)
+          })
+        }
+        const deletedExamIds = examsToDelete.flatMap((exam) => exam.id === undefined ? [] : [exam.id])
+        if (deletedExamIds.length > 0) {
+          const examAssignments = await db.assignments.where('examId').anyOf(deletedExamIds).toArray()
+          examAssignments.forEach((assignment) => {
+            if (assignment.id !== undefined) assignmentsToDelete.set(assignment.id, assignment.id)
+          })
+        }
+
+        if (assignmentsToDelete.size > 0) await db.assignments.bulkDelete([...assignmentsToDelete.keys()])
+        if (studentIds.length > 0) await db.students.bulkDelete(studentIds)
+        if (room?.id !== undefined) await db.rooms.delete(room.id)
+        for (const exam of updatedExams) {
+          if (exam.id === undefined) continue
+          if (exam.classNames.length === 0) await db.exams.delete(exam.id)
+          else await db.exams.update(exam.id, { classNames: exam.classNames })
+        }
+      })
+      setExamDrafts((drafts) => drafts.map((draft) => ({
+        ...draft,
+        classNames: draft.classNames.filter((name) => name !== className),
+      })))
+      setSelectedExamIds((ids) => ids.filter((id) => !examsRemovedWithClass.has(id)))
+      if (expandedClassName === className) setExpandedClassName(null)
+    } catch (cause) {
+      setClassManagementError(cause instanceof Error ? `Sınıf silinemedi: ${cause.message}` : 'Sınıf silinemedi.')
+    }
+  }
+
   function updateRoomDimension(roomId: number, field: 'capacity' | 'columns' | 'rowsPerColumn', value: string) {
     const parsedValue = Number(value)
     if (!Number.isInteger(parsedValue) || parsedValue < 1) {
@@ -912,9 +1087,123 @@ export default function App() {
               </section>
 
               <ExcelImport onImport={handleImport} />
+              <section className="class-management-card">
+                <div className="class-management-heading">
+                  <div><h3>Sınıflar ve öğrenciler</h3><p>Sınıf ekleyin, öğrenci listesini görüntüleyin veya kayıtları düzenleyin.</p></div>
+                  <span>{classNames.length} sınıf · {students.length} öğrenci</span>
+                </div>
+                {classManagementError && <div className="error-message" role="alert">{classManagementError}</div>}
+                <form className="class-create-form" onSubmit={(event) => void addClass(event)}>
+                  <label>
+                    <span>Yeni sınıf adı</span>
+                    <input
+                      value={newClassName}
+                      onChange={(event) => setNewClassName(event.target.value)}
+                      placeholder="Örn. 9-A"
+                      maxLength={60}
+                      required
+                    />
+                  </label>
+                  <button className="primary-button" type="submit"><Plus size={15} /> Sınıf ekle</button>
+                </form>
+                {classNames.length === 0 ? (
+                  <div className="empty-classes">Henüz sınıf yok. Sınıf ekleyebilir veya Excel listesini içe aktarabilirsiniz.</div>
+                ) : (
+                  <div className="class-list">
+                    {classNames.map((className) => {
+                      const classStudents = students
+                        .filter((student) => student.className === className)
+                        .sort((a, b) => a.fullName.localeCompare(b.fullName, 'tr'))
+                      const isExpanded = expandedClassName === className
+                      return (
+                        <article className="class-list-item" key={className}>
+                          <div className="class-list-heading">
+                            <button
+                              className="class-expand-button"
+                              type="button"
+                              aria-expanded={isExpanded}
+                              onClick={() => setExpandedClassName(isExpanded ? null : className)}
+                            >
+                              <ChevronDown className={isExpanded ? 'class-expand-icon class-expand-icon-open' : 'class-expand-icon'} size={16} />
+                              <strong>{className}</strong>
+                              <span>{classStudents.length} öğrenci</span>
+                            </button>
+                            <button
+                              className="class-delete-button"
+                              type="button"
+                              aria-label={`${className} sınıfını sil`}
+                              title="Sınıfı ve öğrencilerini sil"
+                              onClick={() => void deleteClass(className)}
+                            >
+                              <Trash2 size={14} /> Sınıfı sil
+                            </button>
+                          </div>
+                          {isExpanded && (
+                            <div className="class-student-panel">
+                              <form className="student-create-form" onSubmit={(event) => void addStudent(event, className)}>
+                                <label>
+                                  <span>Okul numarası</span>
+                                  <input
+                                    value={studentSchoolNumber}
+                                    onChange={(event) => setStudentSchoolNumber(event.target.value)}
+                                    maxLength={30}
+                                    required
+                                  />
+                                </label>
+                                <label className="student-name-field">
+                                  <span>Adı soyadı</span>
+                                  <input
+                                    value={studentFullName}
+                                    onChange={(event) => setStudentFullName(event.target.value)}
+                                    maxLength={120}
+                                    required
+                                  />
+                                </label>
+                                <label>
+                                  <span>Cinsiyet</span>
+                                  <select value={studentGender} onChange={(event) => setStudentGender(event.target.value as Student['gender'])}>
+                                    <option value="K">Kız</option>
+                                    <option value="E">Erkek</option>
+                                    <option value="B">Belirtilmemiş</option>
+                                  </select>
+                                </label>
+                                <button className="secondary-button" type="submit"><UserPlus size={14} /> Öğrenci ekle</button>
+                              </form>
+                              {classStudents.length === 0 ? (
+                                <div className="empty-class-students">Bu sınıfta henüz öğrenci yok.</div>
+                              ) : (
+                                <div className="class-student-list">
+                                  {classStudents.map((student) => (
+                                    <div className="class-student-row" key={student.id}>
+                                      <span className="class-student-number">{student.schoolNumber}</span>
+                                      <strong>{student.fullName}</strong>
+                                      <span className={`gender-tag gender-${student.gender}`}>
+                                        {student.gender === 'K' ? 'Kız' : student.gender === 'E' ? 'Erkek' : 'Belirtilmemiş'}
+                                      </span>
+                                      <button
+                                        className="student-delete-button"
+                                        type="button"
+                                        aria-label={`${student.fullName} adlı öğrenciyi sil`}
+                                        title="Öğrenciyi sil"
+                                        onClick={() => void deleteStudent(student)}
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </article>
+                      )
+                    })}
+                  </div>
+                )}
+              </section>
               <section className="room-management-card">
                 <div className="room-config-heading">
-                  <div><h3>Ortak derslikler</h3><p>Öğrenci listesi yenilendiğinde şubeler ve derslikler birlikte güncellenir. Kapasite ve oturma düzeni dağıtımlarda kullanılır.</p></div>
+                  <div><h3>Ortak derslikler</h3><p>Sınıflarla eşleşen dersliklerin kapasitesi ve oturma düzeni dağıtımlarda kullanılır.</p></div>
                   <span>{rooms.length} derslik</span>
                 </div>
                 {roomError && <div className="error-message">{roomError}</div>}

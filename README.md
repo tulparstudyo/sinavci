@@ -40,6 +40,9 @@ Uygulamayı kullanırken sınav planlama, dağıtım ve raporlar için önce bir
 3. Birden fazla çalışma sayfası varsa her sayfayı ve toplam öğrenci önizlemesini kontrol edin.
 4. Sistem sınıf/şube, okul numarası, ad-soyad ve cinsiyet alanlarını eşleştirmeye çalışır. Eşleşme doğru değilse **Sütun eşleştirme** alanlarından düzeltin. Ad ve soyad ayrı sütunlardaysa her iki sütunu da kontrol edin.
 5. Hatalı veya tekrarlanan kayıtları inceleyin; aktarılacak öğrenci sayısı ve şube sayısı doğruysa **öğrenciyi içe aktar** düğmesine basın.
+6. **Sınıflar ve öğrenciler** bölümünde sınıfları görüntüleyin. Sınıfı açarak öğrencileri ekleyip silebilir, sınıfı silerek sınıfa bağlı öğrencileri ve sınav kayıtlarını kaldırabilirsiniz. Yeni sınıflar varsayılan 30 kişilik ortak derslikle eklenir; öğrenci ekledikçe kapasite yetersiz kalırsa otomatik artırılır.
+
+Yeni bir Excel listesi içe aktarmak mevcut öğrenci ve sınıf/derslik listesinin yerine geçer. Elle eklediğiniz sınıf ve öğrencileri korumak için içe aktarmadan önce yedek alın.
 
 Aktarım sırasında her şube için otomatik bir derslik oluşturulur:
 
