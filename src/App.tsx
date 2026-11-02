@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Download, GraduationCap, Menu, MessageCircle, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Trash2, Upload, UserPlus, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Download, GraduationCap, Menu, MessageCircle, Moon, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Sun, Trash2, Upload, UserPlus, X } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -75,6 +75,7 @@ function getToday(): string {
 }
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('sinavci.theme') === 'dark')
   const students = useLiveQuery(() => db.students.toArray(), [], [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), [], [])
   const allExams = useLiveQuery(() => db.exams.toArray(), [], [])
@@ -147,6 +148,10 @@ export default function App() {
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [isSidebarOpen])
+
+  useEffect(() => {
+    localStorage.setItem('sinavci.theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
 
   useEffect(() => {
     if (activeSessionId !== null && sessions.length > 0 && !sessions.some((session) => session.id === activeSessionId)) {
@@ -816,7 +821,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-theme={isDarkMode ? 'dark' : 'light'}>
       {isSidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Menüyü kapat" onClick={() => setIsSidebarOpen(false)} />}
       <aside className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`} id="main-navigation">
         <a className="brand" href="#" aria-label="Sınavcı ana sayfa">
@@ -899,6 +904,15 @@ export default function App() {
         </button>
         <div className="sidebar-bottom">
           <div className="local-card"><ShieldCheck size={17} /><div><strong>Yerel ve güvenli</strong><span>Verileriniz cihazınızda kalır</span></div></div>
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-pressed={isDarkMode}
+            onClick={() => setIsDarkMode((enabled) => !enabled)}
+          >
+            {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+            {isDarkMode ? 'Açık tema' : 'Koyu tema'}
+          </button>
           <div className="version-label">Sınavcı <span>v0.1.0</span></div>
         </div>
       </aside>
