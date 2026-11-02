@@ -457,6 +457,7 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
   .room-seat { border: 1px solid #c5cad1; display: flex; flex-direction: column; gap: 1mm; min-height: 17.82mm; overflow: hidden; padding: 1.5mm; }
   .room-seat small { color: #4b5563; font-size: 6.5pt; }
   .room-seat strong { -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #172033; display: -webkit-box; font-size: 7pt; overflow: hidden; overflow-wrap: anywhere; }
+  .room-seat strong:not(.empty-seat) { -webkit-line-clamp: 1; font-size: 6pt; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
   .room-seat span, .room-seat em { color: #374151; font-size: 6pt; font-style: normal; overflow-wrap: anywhere; }
   .room-seat .empty-seat { color: #9ca3af; font-size: 8pt; margin: auto; }
 }
