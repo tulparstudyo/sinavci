@@ -11,6 +11,7 @@ export type DistributionResult =
       ok: true
       distributions: ExamDistribution[]
       relaxedGradePairs: number
+      relaxedGradeSequences: number
       relaxedClassPairs: number
       relaxedClassSequences: number
     }
@@ -83,6 +84,7 @@ function buildSessionDistribution(
 ): {
   distributions: ExamDistribution[]
   relaxedGradePairs: number
+  relaxedGradeSequences: number
   relaxedClassPairs: number
   relaxedClassSequences: number
 } | string {
@@ -144,6 +146,7 @@ function buildSessionDistribution(
   const assignmentsByExam = new Map<number, Omit<SeatAssignment, 'id'>[]>()
   const studentsByClass = new Map<string, number>()
   let relaxedGradePairs = 0
+  let relaxedGradeSequences = 0
   let relaxedClassPairs = 0
   let relaxedClassSequences = 0
 
@@ -181,8 +184,10 @@ function buildSessionDistribution(
       const backwardStudent = occupiedBySeat.get(seat.backwardKey)?.student
       const classSequenceConflict = Number(forwardStudent?.className === student.className) +
         Number(backwardStudent?.className === student.className)
-      const gradeSequenceConflict = Number(Boolean(forwardStudent && gradeOf(forwardStudent) === grade)) +
-        Number(Boolean(backwardStudent && gradeOf(backwardStudent) === grade))
+      const gradeSequenceConflict = grade > 0
+        ? Number(Boolean(forwardStudent && gradeOf(forwardStudent) === grade)) +
+          Number(Boolean(backwardStudent && gradeOf(backwardStudent) === grade))
+        : 0
       const classCount = classCountsByRoom.get(`${roomId}:${student.className}`) ?? 0
       const roomCount = roomCounts.get(roomId) ?? 0
       const score =
@@ -191,7 +196,7 @@ function buildSessionDistribution(
         gradeSequenceConflict * 1_000_000 +
         classCount * 1_000 +
         roomCount * 10 +
-        Number(Boolean(sideStudent && gradeOf(sideStudent) === grade))
+        Number(Boolean(grade > 0 && sideStudent && gradeOf(sideStudent) === grade))
       if (score < bestScore) {
         bestScore = score
         bestSeat = seat
@@ -207,6 +212,8 @@ function buildSessionDistribution(
     if (studentId === undefined || exam.id === undefined) return `“${exam.subject}” sınavındaki bir öğrencinin veya sınavın kayıt numarası bulunamadı.`
     const roomId = seat.room.id
     if (roomId === undefined) return 'Bir salonun kayıt numarası bulunamadı.'
+    const forwardStudent = occupiedBySeat.get(seat.forwardKey)?.student
+    const backwardStudent = occupiedBySeat.get(seat.backwardKey)?.student
     occupiedBySeat.set(`${roomId}:${seat.column}:${seat.row}:${seat.side}`, { ...seat, student })
     const pairClasses = occupiedClassesByPair.get(seat.pairKey) ?? new Set<string>()
     if (pairClasses.has(student.className)) relaxedClassPairs += 1
@@ -216,6 +223,12 @@ function buildSessionDistribution(
     if (grade > 0 && pairGrades.has(grade)) relaxedGradePairs += 1
     if (grade > 0) pairGrades.add(grade)
     occupiedGradesByPair.set(seat.pairKey, pairGrades)
+    if (
+      grade > 0 && (
+        (forwardStudent && gradeOf(forwardStudent) === grade) ||
+        (backwardStudent && gradeOf(backwardStudent) === grade)
+      )
+    ) relaxedGradeSequences += 1
     if (
       occupiedBySeat.get(seat.forwardKey)?.student.className === student.className ||
       occupiedBySeat.get(seat.backwardKey)?.student.className === student.className
@@ -240,6 +253,7 @@ function buildSessionDistribution(
       ? []
       : [{ examId: exam.id, assignments: assignmentsByExam.get(exam.id) ?? [] }]),
     relaxedGradePairs,
+    relaxedGradeSequences,
     relaxedClassPairs,
     relaxedClassSequences,
   }
@@ -258,6 +272,7 @@ export function createDistributions(exams: Exam[], students: Student[], rooms: R
 
   const distributions: ExamDistribution[] = []
   let relaxedGradePairs = 0
+  let relaxedGradeSequences = 0
   let relaxedClassPairs = 0
   let relaxedClassSequences = 0
   for (const sessionExams of examsBySession.values()) {
@@ -265,9 +280,10 @@ export function createDistributions(exams: Exam[], students: Student[], rooms: R
     if (typeof sessionDistributions === 'string') return { ok: false, message: sessionDistributions }
     distributions.push(...sessionDistributions.distributions)
     relaxedGradePairs += sessionDistributions.relaxedGradePairs
+    relaxedGradeSequences += sessionDistributions.relaxedGradeSequences
     relaxedClassPairs += sessionDistributions.relaxedClassPairs
     relaxedClassSequences += sessionDistributions.relaxedClassSequences
   }
 
-  return { ok: true, distributions, relaxedGradePairs, relaxedClassPairs, relaxedClassSequences }
+  return { ok: true, distributions, relaxedGradePairs, relaxedGradeSequences, relaxedClassPairs, relaxedClassSequences }
 }

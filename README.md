@@ -88,10 +88,10 @@ Dağıtım, seçilen sınavlardaki şubelerin dersliklerini ortak salon havuzu o
 Oturma planı oluşturulurken sistem:
 
 - Aynı şubeden öğrencileri yan yana ve arka arkaya oturtmamaya,
-- Farklı seviyeleri yan yana/arka arkaya getirmeye,
+- Aynı seviyedeki öğrencileri yan yana ve arka arkaya oturtmamaya,
 - Şubeleri salonlara dengeli yaymaya çalışır.
 
-Koltuk kapasitesinin zorladığı durumlarda bu oturma tercihleri esnetilebilir; uygulama hangi kuralların kaç konumda esnetildiğini sonuç mesajında gösterir. **Cinsiyet ayrımı etkinse** öğrenciler yalnızca aynı cinsiyet etiketi taşıyan salonlara yerleştirilir; “Belirtilmemiş” öğrenciler için de uygun salon etiketi gerekir. Bir öğrencinin aynı oturumda birden fazla sınava atanması dağıtımı engeller.
+Bu kurallar yerleşimi engellemez: uygun koltuk kalmadığında sistem kuralları mümkün olduğunca uygular ve esnetilen kuralları sonuç mesajında gösterir. **Cinsiyet ayrımı etkinse** öğrenciler yalnızca aynı cinsiyet etiketi taşıyan salonlara yerleştirilir; “Belirtilmemiş” öğrenciler için de uygun salon etiketi gerekir. Bir öğrencinin aynı oturumda birden fazla sınava atanması dağıtımı engeller.
 
 ![Seçili sınavlar ve dağıtım başlatma ekranı](docs/screenshots/05-dagitim.png)
 

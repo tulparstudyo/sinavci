@@ -808,6 +808,9 @@ export default function App() {
         result.relaxedGradePairs > 0
           ? `Aynı seviyeden öğrencilerin yan yana oturma kuralı ${result.relaxedGradePairs} masa çiftinde`
           : '',
+        result.relaxedGradeSequences > 0
+          ? `Aynı seviyeden öğrencilerin peş peşe oturma kuralı ${result.relaxedGradeSequences} sıra konumunda`
+          : '',
       ].filter(Boolean)
       const seatingNote = seatingNotes.length > 0
         ? ` Zorunlu kapasite durumunda esnetilen kurallar: ${seatingNotes.join('; ')}.`
