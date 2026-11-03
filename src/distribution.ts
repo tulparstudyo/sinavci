@@ -165,7 +165,7 @@ function buildSessionDistribution(
   for (const { exam, student } of orderedStudents) {
     const grade = gradeOf(student)
     let bestSeat: Seat | undefined
-    let bestScore = Number.POSITIVE_INFINITY
+    let bestScore: number[] | undefined
 
     for (const seat of seats) {
       const roomId = seat.room.id
@@ -190,14 +190,23 @@ function buildSessionDistribution(
         : 0
       const classCount = classCountsByRoom.get(`${roomId}:${student.className}`) ?? 0
       const roomCount = roomCounts.get(roomId) ?? 0
-      const score =
-        (classPairConflict + classSequenceConflict) * 1_000_000_000 +
-        Number(hasGradeConflict) * 10_000_000 +
-        gradeSequenceConflict * 1_000_000 +
-        classCount * 1_000 +
-        roomCount * 10 +
-        Number(Boolean(grade > 0 && sideStudent && gradeOf(sideStudent) === grade))
-      if (score < bestScore) {
+      const score = [
+        classPairConflict + classSequenceConflict,
+        classCount,
+        Number(hasGradeConflict),
+        gradeSequenceConflict,
+        roomCount,
+        Number(Boolean(grade > 0 && sideStudent && gradeOf(sideStudent) === grade)),
+      ]
+      let isBetterSeat = bestScore === undefined
+      if (bestScore !== undefined) {
+        for (let index = 0; index < score.length; index += 1) {
+          if (score[index] === bestScore[index]) continue
+          isBetterSeat = score[index] < bestScore[index]
+          break
+        }
+      }
+      if (isBetterSeat) {
         bestScore = score
         bestSeat = seat
       }

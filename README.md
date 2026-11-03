@@ -89,7 +89,8 @@ Oturma planı oluşturulurken sistem:
 
 - Aynı şubeden öğrencileri yan yana ve arka arkaya oturtmamaya,
 - Aynı seviyedeki öğrencileri yan yana ve arka arkaya oturtmamaya,
-- Şubeleri salonlara dengeli yaymaya çalışır.
+- Her şubenin öğrencilerini uygun dersliklere eşit veya mümkün olduğunca yakın sayılarda dağıtmaya,
+- Dersliklerin doluluklarını dengeli tutmaya çalışır.
 
 Bu kurallar yerleşimi engellemez: uygun koltuk kalmadığında sistem kuralları mümkün olduğunca uygular ve esnetilen kuralları sonuç mesajında gösterir. **Cinsiyet ayrımı etkinse** öğrenciler yalnızca aynı cinsiyet etiketi taşıyan salonlara yerleştirilir; “Belirtilmemiş” öğrenciler için de uygun salon etiketi gerekir. Bir öğrencinin aynı oturumda birden fazla sınava atanması dağıtımı engeller.
 
