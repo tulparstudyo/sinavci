@@ -70,6 +70,9 @@ button:disabled { cursor: not-allowed; }
 .topbar b { color: #c4c9d2; font-weight: 400; padding: 0 7px; }
 .local-indicator { align-items: center; display: flex; gap: 7px; }
 .local-indicator i, .privacy-note span { background: #43b77b; border-radius: 50%; height: 6px; width: 6px; }
+.intro-video-trigger { align-items: center; background: transparent; border: 0; border-radius: 5px; color: #e14b4b; display: inline-flex; justify-content: center; margin-left: 1px; padding: 4px; }
+.intro-video-trigger:hover { background: #fff0f0; color: #c62828; }
+.intro-video-trigger:focus-visible { outline: 2px solid #e14b4b; outline-offset: 2px; }
 .page-content { margin: 0 auto; max-width: 1140px; padding: 40px 47px 24px; }
 .page-intro { align-items: center; display: flex; justify-content: space-between; margin-bottom: 28px; }
 .eyebrow { align-items: center; color: #6479da; display: flex; font-size: 9px; font-weight: 750; gap: 7px; letter-spacing: 1px; margin-bottom: 10px; }
@@ -588,6 +591,7 @@ td { border-top: 1px solid #f0f2f5; color: #707b8e; font-size: 10px; padding: 9p
 [data-theme="dark"] .subject-help-backdrop { background: rgb(3 7 12 / 72%); }
 [data-theme="dark"] .intro-video-backdrop { background: rgb(3 7 12 / 82%); }
 [data-theme="dark"] .mobile-menu-button { background: #1c2634; border-color: #354154; }
+[data-theme="dark"] .intro-video-trigger:hover { background: #3a2529; color: #ff9696; }
 [data-theme="dark"] .empty-class-students,
 [data-theme="dark"] .empty-classes { color: #a0adbf; }
 [data-theme="dark"] .report-print-button:hover { background: #222d42; }

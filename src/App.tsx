@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Download, GraduationCap, Menu, MessageCircle, Moon, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Sun, Trash2, Upload, UserPlus, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Download, GraduationCap, Menu, MessageCircle, Moon, Pencil, Plus, Printer, School, Settings2, ShieldCheck, Sparkles, Sun, Trash2, Upload, UserPlus, X, Youtube } from 'lucide-react'
 import { db, replaceStudentRoster } from './db'
 import { parseBackup, type BackupData } from './backup'
 import { compareClassNames } from './classSort'
@@ -247,6 +247,11 @@ export default function App() {
     if (hideIntroVideo) localStorage.setItem('sinavci.hideIntroVideo', 'true')
     else localStorage.removeItem('sinavci.hideIntroVideo')
     setIsIntroVideoOpen(false)
+  }
+
+  function openIntroVideo() {
+    setHideIntroVideo(localStorage.getItem('sinavci.hideIntroVideo') === 'true')
+    setIsIntroVideoOpen(true)
   }
 
   function startNewSession() {
@@ -933,7 +938,18 @@ export default function App() {
             <Menu size={19} />
           </button>
           <span>Çalışma alanı <b>/</b> {activeSession ? sessionDisplayName(activeSession) : 'Oturum seçilmedi'}</span>
-          <span className="local-indicator"><i /> Çevrimdışı kullanıma hazır</span>
+          <div className="local-indicator">
+            <i /> Çevrimdışı kullanıma hazır
+            <button
+              className="intro-video-trigger"
+              type="button"
+              aria-label="Tanıtım videosunu aç"
+              title="Tanıtım videosunu aç"
+              onClick={openIntroVideo}
+            >
+              <Youtube size={17} />
+            </button>
+          </div>
         </header>
         <div className="page-content">
           <div className="page-intro">
