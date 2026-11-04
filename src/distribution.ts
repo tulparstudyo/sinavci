@@ -68,6 +68,17 @@ function createSeats(room: Room): Seat[] {
   return seats
 }
 
+function shuffleSeats(seats: Seat[]): Seat[] {
+  const shuffled = [...seats]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    const currentSeat = shuffled[index]
+    shuffled[index] = shuffled[swapIndex]
+    shuffled[swapIndex] = currentSeat
+  }
+  return shuffled
+}
+
 function gradeOf(student: Student): number {
   const grade = Number(student.className.match(/^\d{1,2}/)?.[0])
   return Number.isFinite(grade) ? grade : 0
@@ -137,7 +148,7 @@ function buildSessionDistribution(
 
   }
 
-  const seats = examRooms.flatMap(createSeats)
+  const seats = shuffleSeats(examRooms.flatMap(createSeats))
   const occupiedBySeat = new Map<string, OccupiedSeat>()
   const occupiedClassesByPair = new Map<string, Set<string>>()
   const occupiedGradesByPair = new Map<string, Set<number>>()
