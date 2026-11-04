@@ -1628,10 +1628,10 @@ export default function App() {
         href="https://wa.me/905065989387"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="WhatsApp üzerinden sohbet başlat"
+        aria-label="Destek için WhatsApp üzerinden sohbet başlat"
       >
         <MessageCircle size={19} aria-hidden="true" />
-        <span>WhatsApp</span>
+        <span>Destek</span>
       </a>
     </div>
   )
