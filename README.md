@@ -4,7 +4,7 @@ Liseler için yerel sınav planlama, kelebek salon dağıtımı ve raporlama uyg
 
 ## Demo
 
-[Sınavcı demosunu açın](https://sinavci.teknovip.net/)
+[Tüm Özellikleri Çalışan Bir Sınavcı Demosunu Kullanmak İçin Tıklayınız](https://sinavci.teknovip.net/)
 
 ## Tanıtım videosu
 
